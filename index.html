@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花生米专属提示</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+        
+        .tip-window {
+            position: fixed;
+            width: 280px;
+            height: 100px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            z-index: 1000;
+            cursor: move;
+            user-select: none;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .single-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 100px;
+            background: skyblue;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            color: white;
+            z-index: 1001;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="singleWindow" class="single-window">
+        宝宝我想你啦
+    </div>
+
+    <script>
+        let batchWindows = [];
+        const singleWindow = document.getElementById('singleWindow');
+        
+        // 提示语库
+        const tips = [
+            '宝宝多喝水哦~', '宝宝要保持微笑呀', '每天都要元气满满',
+            '记得吃水果', '保持好心情', '好好爱自己', '宝宝我想你了',
+            '梦想成真', '期待下一次见面', '金榜题名',
+            '顺顺利利', '早点休息', '愿所有烦恼都消失',
+            '别熬夜了哦宝宝', '今天过得开心嘛', '宝宝天冷了，多穿衣服', '晚安'
+        ];
+        
+        // 背景颜色库
+        const bgColors = [
+            'lightpink', 'skyblue', 'lightgreen', 'lavender',
+            'lightyellow', 'plum', 'coral', 'bisque', 'aquamarine'
+        ];
+        
+        // 关闭单个弹窗后启动批量弹窗
+        singleWindow.addEventListener('click', function() {
+            singleWindow.style.display = 'none';
+            startBatchTips();
+        });
+        
+        function startBatchTips() {
+            createBatchWindow(100);
+        }
+        
+        function createBatchWindow(count) {
+            if (count <= 0) return;
+            
+            const tip = tips[Math.floor(Math.random() * tips.length)];
+            const bgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            
+            const window = document.createElement('div');
+            window.className = 'tip-window';
+            window.textContent = tip;
+            window.style.background = bgColor;
+            
+            // 随机位置
+            const screenWidth = window.innerWidth || document.documentElement.clientWidth;
+            const screenHeight = window.innerHeight || document.documentElement.clientHeight;
+            const x = Math.random() * (screenWidth - 300);
+            const y = Math.random() * (screenHeight - 120);
+            
+            window.style.left = x + 'px';
+            window.style.top = y + 'px';
+            
+            // 添加拖动功能
+            makeDraggable(window);
+            
+            document.body.appendChild(window);
+            batchWindows.push(window);
+            
+            // 创建下一个窗口
+            setTimeout(() => {
+                createBatchWindow(count - 1);
+            }, 50);
+        }
+        
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            element.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+            
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        
+        // 空格键关闭所有弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                removeAllTips();
+            }
+        });
+        
+        function removeAllTips() {
+            // 关闭批量弹窗
+            batchWindows.forEach(window => {
+                if (window.parentNode) {
+                    window.parentNode.removeChild(window);
+                }
+            });
+            batchWindows = [];
+            
+            // 关闭单个弹窗
+            if (singleWindow) {
+                singleWindow.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
