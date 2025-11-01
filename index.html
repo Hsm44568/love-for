@@ -5,31 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>花生米专属提示</title>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: #f0f0f0;
-            font-family: 'Microsoft YaHei', sans-serif;
-            overflow: hidden;
+            box-sizing: border-box;
         }
         
+        body {
+            background: #000;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+        }
+        
+        /* 横屏适配 */
+        .landscape-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #1a1a1a, #2d2d2d);
+        }
+        
+        /* 弹窗样式 - 适配横屏 */
         .tip-window {
             position: fixed;
-            width: 280px;
-            height: 100px;
-            border-radius: 5px;
+            width: 120px;
+            height: 60px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 10px;
-            font-size: 14px;
+            padding: 8px;
+            font-size: 12px;
             color: #333;
             z-index: 1000;
-            cursor: move;
-            user-select: none;
-            border: 2px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
         .single-window {
@@ -37,25 +53,29 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 280px;
-            height: 100px;
-            background: skyblue;
-            border-radius: 5px;
+            width: 200px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 14px;
+            font-size: 16px;
             color: white;
             z-index: 1001;
-            border: 2px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+    <div class="landscape-container"></div>
+    
+    <!-- 初始弹窗 -->
     <div id="singleWindow" class="single-window">
-        宝宝我想你啦
+        宝宝我想你啦 💕
     </div>
 
     <script>
@@ -64,27 +84,27 @@
         
         // 提示语库
         const tips = [
-            '宝宝多喝水哦~', '宝宝要保持微笑呀', '每天都要元气满满',
-            '记得吃水果', '保持好心情', '好好爱自己', '宝宝我想你了',
-            '梦想成真', '期待下一次见面', '金榜题名',
-            '顺顺利利', '早点休息', '愿所有烦恼都消失',
-            '别熬夜了哦宝宝', '今天过得开心嘛', '宝宝天冷了，多穿衣服', '晚安'
+            '宝宝多喝水哦~💧', '保持微笑呀😊', '元气满满🌞',
+            '记得吃水果🍎', '保持好心情💖', '好好爱自己✨', '我想你了💕',
+            '梦想成真⭐', '期待见面👫', '顺顺利利🌈',
+            '早点休息🌙', '烦恼消失🎈', '别熬夜了⏰',
+            '今天开心嘛😄', '多穿衣服🧥', '晚安🌛', '爱你哟💝'
         ];
         
         // 背景颜色库
         const bgColors = [
-            'lightpink', 'skyblue', 'lightgreen', 'lavender',
-            'lightyellow', 'plum', 'coral', 'bisque', 'aquamarine'
+            '#FFB6C1', '#87CEEB', '#98FB98', '#E6E6FA',
+            '#FFFACD', '#DDA0DD', '#FFA07A', '#F0E68C', '#7FFFD4'
         ];
         
-        // 关闭单个弹窗后启动批量弹窗
+        // 点击关闭单个弹窗并启动批量弹窗
         singleWindow.addEventListener('click', function() {
             singleWindow.style.display = 'none';
             startBatchTips();
         });
         
         function startBatchTips() {
-            createBatchWindow(100);
+            createBatchWindow(50);
         }
         
         function createBatchWindow(count) {
@@ -95,20 +115,17 @@
             
             const window = document.createElement('div');
             window.className = 'tip-window';
-            window.textContent = tip;
+            window.innerHTML = tip;
             window.style.background = bgColor;
             
-            // 随机位置
+            // 横屏随机位置
             const screenWidth = window.innerWidth || document.documentElement.clientWidth;
             const screenHeight = window.innerHeight || document.documentElement.clientHeight;
-            const x = Math.random() * (screenWidth - 300);
-            const y = Math.random() * (screenHeight - 120);
+            const x = Math.random() * (screenWidth - 130);
+            const y = Math.random() * (screenHeight - 70);
             
             window.style.left = x + 'px';
             window.style.top = y + 'px';
-            
-            // 添加拖动功能
-            makeDraggable(window);
             
             document.body.appendChild(window);
             batchWindows.push(window);
@@ -116,38 +133,7 @@
             // 创建下一个窗口
             setTimeout(() => {
                 createBatchWindow(count - 1);
-            }, 50);
-        }
-        
-        function makeDraggable(element) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            
-            element.onmousedown = dragMouseDown;
-            
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-            
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                element.style.top = (element.offsetTop - pos2) + "px";
-                element.style.left = (element.offsetLeft - pos1) + "px";
-            }
-            
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
+            }, 100);
         }
         
         // 空格键关闭所有弹窗
@@ -166,11 +152,6 @@
                 }
             });
             batchWindows = [];
-            
-            // 关闭单个弹窗
-            if (singleWindow) {
-                singleWindow.style.display = 'none';
-            }
         }
     </script>
 </body>
